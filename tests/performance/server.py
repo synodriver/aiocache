@@ -38,7 +38,7 @@ async def handler_get(req):
 
     data = str(uuid.uuid4())
     await req.app["cache"].set("testkey", data)
-    return web.Response(text=str(data))
+    return web.Response(text=data)
 
 
 def run_server(backend, loop=None):

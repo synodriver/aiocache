@@ -32,8 +32,7 @@ def _create_cache(cache, serializer=None, plugins=None, **kwargs):
             plugins_instances.append(cls(**plugin))
 
     cache = _class_from_string(cache) if isinstance(cache, str) else cache
-    instance = cache(serializer=serializer, plugins=plugins_instances, **kwargs)
-    return instance
+    return cache(serializer=serializer, plugins=plugins_instances, **kwargs)
 
 
 class Cache:
@@ -65,8 +64,9 @@ class Cache:
             assert issubclass(cache_class, BaseCache)
         except AssertionError as e:
             raise InvalidCacheType(
-                "Invalid cache type, you can only use {}".format(list(AIOCACHE_CACHES.keys()))
+                f"Invalid cache type, you can only use {list(AIOCACHE_CACHES.keys())}"
             ) from e
+
         instance = cache_class.__new__(cache_class, **kwargs)
         instance.__init__(**kwargs)
         return instance
@@ -81,7 +81,7 @@ class Cache:
             return cls._get_cache_class(scheme)
         except KeyError as e:
             raise InvalidCacheType(
-                "Invalid cache type, you can only use {}".format(list(AIOCACHE_CACHES.keys()))
+                f"Invalid cache type, you can only use {list(AIOCACHE_CACHES.keys())}"
             ) from e
 
     @classmethod
@@ -112,7 +112,7 @@ class Cache:
         cache_class = Cache.get_scheme_class(parsed_url.scheme)
 
         if parsed_url.path:
-            kwargs.update(cache_class.parse_uri_path(parsed_url.path))
+            kwargs |= cache_class.parse_uri_path(parsed_url.path)
 
         if parsed_url.hostname:
             kwargs["endpoint"] = parsed_url.hostname

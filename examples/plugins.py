@@ -31,7 +31,7 @@ async def run():
 
     possible_keys = ["a", "b", "c", "d", "e", "f"]
 
-    for t in range(1000):
+    for _ in range(1000):
         await cache.get(random.choice(possible_keys))
 
     assert cache.hit_miss_ratio["hit_ratio"] > 0.5

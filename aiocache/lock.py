@@ -65,7 +65,7 @@ class RedLock:
 
     def __init__(self, client: BaseCache, key: str, lease: Union[int, float]):
         self.client = client
-        self.key = self.client._build_key(key + "-lock")
+        self.key = self.client._build_key(f"{key}-lock")
         self.lease = lease
         self._value = ""
 

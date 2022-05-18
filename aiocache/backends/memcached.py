@@ -43,7 +43,7 @@ class MemcachedBackend:
         try:
             return await self.client.set(key, value, exptime=ttl or 0)
         except aiomcache.exceptions.ValidationException as e:
-            raise TypeError("aiomcache error: {}".format(str(e)))
+            raise TypeError(f"aiomcache error: {str(e)}")
 
     async def _cas(self, key, value, token, ttl=None, _conn=None):
         return await self.client.cas(key, value, token, exptime=ttl or 0)
@@ -57,7 +57,7 @@ class MemcachedBackend:
         try:
             await asyncio.gather(*tasks)
         except aiomcache.exceptions.ValidationException as e:
-            raise TypeError("aiomcache error: {}".format(str(e)))
+            raise TypeError(f"aiomcache error: {str(e)}")
 
         return True
 
@@ -66,9 +66,9 @@ class MemcachedBackend:
         try:
             ret = await self.client.add(key, value, exptime=ttl or 0)
         except aiomcache.exceptions.ValidationException as e:
-            raise TypeError("aiomcache error: {}".format(str(e)))
+            raise TypeError(f"aiomcache error: {str(e)}")
         if not ret:
-            raise ValueError("Key {} already exists, use .set to update the value".format(key))
+            raise ValueError(f"Key {key} already exists, use .set to update the value")
 
         return True
 
@@ -86,7 +86,7 @@ class MemcachedBackend:
             if "NOT_FOUND" in str(e):
                 await self._set(key, str(delta).encode())
             else:
-                raise TypeError("aiomcache error: {}".format(str(e)))
+                raise TypeError(f"aiomcache error: {str(e)}")
 
         return incremented or delta
 
@@ -105,9 +105,12 @@ class MemcachedBackend:
 
     async def _raw(self, command, *args, encoding="utf-8", _conn=None, **kwargs):
         value = await getattr(self.client, command)(*args, **kwargs)
-        if command in ["get", "multi_get"]:
-            if encoding is not None and value is not None:
-                return value.decode(encoding)
+        if (
+            command in ["get", "multi_get"]
+            and encoding is not None
+            and value is not None
+        ):
+            return value.decode(encoding)
         return value
 
     async def _redlock_release(self, key, _):
@@ -145,7 +148,7 @@ class MemcachedCache(MemcachedBackend, BaseCache):
         self.serializer = serializer or JsonSerializer()
 
     @classmethod
-    def parse_uri_path(self, path):
+    def parse_uri_path(cls, path):
         return {}
 
     def _build_key(self, key, namespace=None):
@@ -153,4 +156,4 @@ class MemcachedCache(MemcachedBackend, BaseCache):
         return str.encode(ns_key)
 
     def __repr__(self):  # pragma: no cover
-        return "MemcachedCache ({}:{})".format(self.endpoint, self.port)
+        return f"MemcachedCache ({self.endpoint}:{self.port})"

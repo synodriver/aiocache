@@ -15,7 +15,7 @@ class TestRedLock:
     async def test_acquire(self, cache, lock):
         cache.serializer = StringSerializer()
         async with lock:
-            assert await cache.get(pytest.KEY + "-lock") == lock._value
+            assert await cache.get(f"{pytest.KEY}-lock") == lock._value
 
     @pytest.mark.asyncio
     async def test_release_does_nothing_when_no_lock(self, lock):
@@ -25,7 +25,7 @@ class TestRedLock:
     async def test_acquire_release(self, cache, lock):
         async with lock:
             pass
-        assert await cache.get(pytest.KEY + "-lock") is None
+        assert await cache.get(f"{pytest.KEY}-lock") is None
 
     @pytest.mark.asyncio
     async def test_locking_dogpile(self, mocker, cache):

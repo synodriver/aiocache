@@ -8,10 +8,10 @@ from aiocache import cached, cached_stampede, multi_cached
 
 
 async def return_dict(keys=None):
-    ret = {}
-    for value, key in enumerate(keys or [pytest.KEY, pytest.KEY_1]):
-        ret[key] = str(value)
-    return ret
+    return {
+        key: str(value)
+        for value, key in enumerate(keys or [pytest.KEY, pytest.KEY_1])
+    }
 
 
 async def stub(*args, key=None, seconds=0, **kwargs):
@@ -42,7 +42,7 @@ class TestCached:
     @pytest.mark.asyncio
     async def test_cached_key_builder(self, cache):
         def build_key(f, self, a, b):
-            return "{}_{}_{}_{}".format(self, f.__name__, a, b)
+            return f"{self}_{f.__name__}_{a}_{b}"
 
         @cached(key_builder=build_key)
         async def fn(self, a, b=2):
@@ -122,7 +122,7 @@ class TestMultiCachedDecorator:
     @pytest.mark.asyncio
     async def test_multi_cached_key_builder(self, cache):
         def build_key(key, f, self, keys, market="ES"):
-            return "{}_{}_{}".format(f.__name__, key, market)
+            return f"{f.__name__}_{key}_{market}"
 
         @multi_cached(keys_from_attr="keys", key_builder=build_key)
         async def fn(self, keys, market="ES"):

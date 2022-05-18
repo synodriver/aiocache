@@ -44,7 +44,7 @@ class SimpleMemoryBackend:
 
     async def _add(self, key, value, ttl=None, _conn=None):
         if key in SimpleMemoryBackend._cache:
-            raise ValueError("Key {} already exists, use .set to update the value".format(key))
+            raise ValueError(f"Key {key} already exists, use .set to update the value")
 
         await self._set(key, value, ttl=ttl)
         return True
@@ -64,8 +64,7 @@ class SimpleMemoryBackend:
 
     async def _expire(self, key, ttl, _conn=None):
         if key in SimpleMemoryBackend._cache:
-            handle = SimpleMemoryBackend._handlers.pop(key, None)
-            if handle:
+            if handle := SimpleMemoryBackend._handlers.pop(key, None):
                 handle.cancel()
             if ttl:
                 loop = asyncio.get_event_loop()
@@ -99,8 +98,7 @@ class SimpleMemoryBackend:
     @classmethod
     def __delete(cls, key):
         if cls._cache.pop(key, None) is not None:
-            handle = cls._handlers.pop(key, None)
-            if handle:
+            if handle := cls._handlers.pop(key, None):
                 handle.cancel()
             return 1
 

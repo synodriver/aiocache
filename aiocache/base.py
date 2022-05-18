@@ -70,15 +70,16 @@ class API:
         async def _plugins(self, *args, **kwargs):
             start = time.monotonic()
             for plugin in self.plugins:
-                await getattr(plugin, "pre_{}".format(func.__name__))(self, *args, **kwargs)
+                await getattr(plugin, f"pre_{func.__name__}")(self, *args, **kwargs)
 
             ret = await func(self, *args, **kwargs)
 
             end = time.monotonic()
             for plugin in self.plugins:
-                await getattr(plugin, "post_{}".format(func.__name__))(
+                await getattr(plugin, f"post_{func.__name__}")(
                     self, *args, took=end - start, ret=ret, **kwargs
                 )
+
             return ret
 
         return _plugins
@@ -293,9 +294,10 @@ class BaseCache:
         start = time.monotonic()
         dumps = dumps_fn or self._serializer.dumps
 
-        tmp_pairs = []
-        for key, value in pairs:
-            tmp_pairs.append((self.build_key(key, namespace=namespace), dumps(value)))
+        tmp_pairs = [
+            (self.build_key(key, namespace=namespace), dumps(value))
+            for key, value in pairs
+        ]
 
         await self._multi_set(tmp_pairs, ttl=self._get_ttl(ttl), _conn=_conn)
 
@@ -480,9 +482,9 @@ class BaseCache:
 
     def _build_key(self, key, namespace=None):
         if namespace is not None:
-            return "{}{}".format(namespace, key)
+            return f"{namespace}{key}"
         if self.namespace is not None:
-            return "{}{}".format(self.namespace, key)
+            return f"{self.namespace}{key}"
         return key
 
     def _get_ttl(self, ttl):

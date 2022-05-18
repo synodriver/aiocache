@@ -50,15 +50,11 @@ class MyTypeSchema(Schema, BaseSerializer):
 
 
 def dumps(x):
-    if x == "value":
-        return "v4lu3"
-    return 100
+    return "v4lu3" if x == "value" else 100
 
 
 def loads(x):
-    if x == "v4lu3":
-        return "value"
-    return 200
+    return "value" if x == "v4lu3" else 200
 
 
 class TestNullSerializer:

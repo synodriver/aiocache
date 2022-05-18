@@ -121,10 +121,7 @@ class TestJsonSerializer:
         assert serializer.loads(serializer.dumps(obj)) == obj
 
     def test_dumps(self):
-        assert (
-            JsonSerializer().dumps({"hi": 1}) == '{"hi": 1}'
-            or JsonSerializer().dumps({"hi": 1}) == '{"hi":1}'  # json
-        )  # ujson
+        assert JsonSerializer().dumps({"hi": 1}) in ['{"hi": 1}', '{"hi":1}']
 
     def test_dumps_with_none(self):
         assert JsonSerializer().dumps(None) == "null"

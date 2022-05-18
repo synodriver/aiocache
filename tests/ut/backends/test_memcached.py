@@ -270,10 +270,7 @@ class TestMemcachedCache:
     def test_parse_uri_path(self):
         assert MemcachedCache().parse_uri_path("/1/2/3") == {}
 
-    @pytest.mark.parametrize(
-        "namespace, expected",
-        ([None, "test" + pytest.KEY], ["", pytest.KEY], ["my_ns", "my_ns" + pytest.KEY]),
-    )
+    @pytest.mark.parametrize("namespace, expected", ([None, f"test{pytest.KEY}"], ["", pytest.KEY], ["my_ns", f"my_ns{pytest.KEY}"]))
     def test_build_key_bytes(self, set_test_namespace, memcached_cache, namespace, expected):
         assert memcached_cache.build_key(pytest.KEY, namespace=namespace) == expected.encode()
 

@@ -39,7 +39,7 @@ def redis_cache(event_loop):
 
     event_loop.run_until_complete(cache.delete(pytest.KEY))
     event_loop.run_until_complete(cache.delete(pytest.KEY_1))
-    event_loop.run_until_complete(cache.delete(pytest.KEY + "-lock"))
+    event_loop.run_until_complete(cache.delete(f"{pytest.KEY}-lock"))
     event_loop.run_until_complete(cache.close())
 
 
@@ -50,7 +50,7 @@ def memory_cache(event_loop):
 
     event_loop.run_until_complete(cache.delete(pytest.KEY))
     event_loop.run_until_complete(cache.delete(pytest.KEY_1))
-    event_loop.run_until_complete(cache.delete(pytest.KEY + "-lock"))
+    event_loop.run_until_complete(cache.delete(f"{pytest.KEY}-lock"))
     event_loop.run_until_complete(cache.close())
 
 
@@ -61,7 +61,7 @@ def memcached_cache(event_loop):
 
     event_loop.run_until_complete(cache.delete(pytest.KEY))
     event_loop.run_until_complete(cache.delete(pytest.KEY_1))
-    event_loop.run_until_complete(cache.delete(pytest.KEY + "-lock"))
+    event_loop.run_until_complete(cache.delete(f"{pytest.KEY}-lock"))
     event_loop.run_until_complete(cache.close())
 
 

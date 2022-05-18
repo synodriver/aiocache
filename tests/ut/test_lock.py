@@ -14,30 +14,35 @@ class TestRedLock:
     @pytest.mark.asyncio
     async def test_acquire(self, mock_cache, lock):
         await lock._acquire()
-        mock_cache._add.assert_called_with(pytest.KEY + "-lock", lock._value, ttl=20)
-        assert lock._EVENTS[pytest.KEY + "-lock"].is_set() is False
+        mock_cache._add.assert_called_with(f"{pytest.KEY}-lock", lock._value, ttl=20)
+        assert lock._EVENTS[f"{pytest.KEY}-lock"].is_set() is False
 
     @pytest.mark.asyncio
     async def test_release(self, mock_cache, lock):
         mock_cache._redlock_release.return_value = True
         await lock._acquire()
         await lock._release()
-        mock_cache._redlock_release.assert_called_with(pytest.KEY + "-lock", lock._value)
-        assert pytest.KEY + "-lock" not in lock._EVENTS
+        mock_cache._redlock_release.assert_called_with(
+            f"{pytest.KEY}-lock", lock._value
+        )
+
+        assert f"{pytest.KEY}-lock" not in lock._EVENTS
 
     @pytest.mark.asyncio
     async def test_release_no_acquire(self, mock_cache, lock):
         mock_cache._redlock_release.return_value = False
-        assert pytest.KEY + "-lock" not in lock._EVENTS
+        assert f"{pytest.KEY}-lock" not in lock._EVENTS
         await lock._release()
-        assert pytest.KEY + "-lock" not in lock._EVENTS
+        assert f"{pytest.KEY}-lock" not in lock._EVENTS
 
     @pytest.mark.asyncio
     async def test_context_manager(self, mock_cache, lock):
         async with lock:
             pass
-        mock_cache._add.assert_called_with(pytest.KEY + "-lock", lock._value, ttl=20)
-        mock_cache._redlock_release.assert_called_with(pytest.KEY + "-lock", lock._value)
+        mock_cache._add.assert_called_with(f"{pytest.KEY}-lock", lock._value, ttl=20)
+        mock_cache._redlock_release.assert_called_with(
+            f"{pytest.KEY}-lock", lock._value
+        )
 
     @pytest.mark.asyncio
     async def test_raises_exceptions(self, mock_cache, lock):
@@ -64,18 +69,18 @@ class TestRedLock:
         lock_2 = RedLock(mock_cache, pytest.KEY, 20)
         mock_cache._add.side_effect = [True, ValueError(), ValueError()]
         await lock._acquire()
-        event = lock._EVENTS[pytest.KEY + "-lock"]
+        event = lock._EVENTS[f"{pytest.KEY}-lock"]
 
-        assert pytest.KEY + "-lock" in lock._EVENTS
-        assert pytest.KEY + "-lock" in lock_1._EVENTS
-        assert pytest.KEY + "-lock" in lock_2._EVENTS
+        assert f"{pytest.KEY}-lock" in lock._EVENTS
+        assert f"{pytest.KEY}-lock" in lock_1._EVENTS
+        assert f"{pytest.KEY}-lock" in lock_2._EVENTS
         assert not event.is_set()
 
         await asyncio.gather(lock_1._acquire(), lock._release(), lock_2._acquire())
 
-        assert pytest.KEY + "-lock" not in lock._EVENTS
-        assert pytest.KEY + "-lock" not in lock_1._EVENTS
-        assert pytest.KEY + "-lock" not in lock_2._EVENTS
+        assert f"{pytest.KEY}-lock" not in lock._EVENTS
+        assert f"{pytest.KEY}-lock" not in lock_1._EVENTS
+        assert f"{pytest.KEY}-lock" not in lock_2._EVENTS
         assert event.is_set()
 
 

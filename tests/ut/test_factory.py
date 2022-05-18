@@ -45,7 +45,7 @@ class TestCache:
         kwargs = {"a": 1, "b": 2}
         cache_class = Cache.get_scheme_class(cache_type)
 
-        with patch("aiocache.{}.__init__".format(cache_class.__name__)) as init:
+        with patch(f"aiocache.{cache_class.__name__}.__init__") as init:
             cache = Cache(cache_class, **kwargs)
             assert isinstance(cache, cache_class)
             init.assert_called_once_with(**kwargs)
@@ -56,8 +56,9 @@ class TestCache:
     def test_new_invalid_cache_raises(self):
         with pytest.raises(InvalidCacheType) as e:
             Cache(object)
-        assert str(e.value) == "Invalid cache type, you can only use {}".format(
-            list(AIOCACHE_CACHES.keys())
+        assert (
+            str(e.value)
+            == f"Invalid cache type, you can only use {list(AIOCACHE_CACHES.keys())}"
         )
 
     @pytest.mark.parametrize("scheme", [Cache.MEMORY.NAME, Cache.REDIS.NAME, Cache.MEMCACHED.NAME])
@@ -70,7 +71,9 @@ class TestCache:
 
     @pytest.mark.parametrize("scheme", [Cache.MEMORY.NAME, Cache.REDIS.NAME, Cache.MEMCACHED.NAME])
     def test_from_url_returns_cache_from_scheme(self, scheme):
-        assert isinstance(Cache.from_url("{}://".format(scheme)), Cache.get_scheme_class(scheme))
+        assert isinstance(
+            Cache.from_url(f"{scheme}://"), Cache.get_scheme_class(scheme)
+        )
 
     @pytest.mark.parametrize(
         "url,expected_args",

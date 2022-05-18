@@ -10,8 +10,11 @@ class TestBasePlugin:
     @pytest.mark.asyncio
     async def test_interface_methods(self):
         for method in API.CMDS:
-            assert await getattr(BasePlugin, "pre_{}".format(method.__name__))(MagicMock()) is None
-            assert await getattr(BasePlugin, "post_{}".format(method.__name__))(MagicMock()) is None
+            assert await getattr(BasePlugin, f"pre_{method.__name__}")(MagicMock()) is None
+            assert (
+                await getattr(BasePlugin, f"post_{method.__name__}")(MagicMock())
+                is None
+            )
 
     @pytest.mark.asyncio
     async def test_do_nothing(self):
@@ -20,31 +23,31 @@ class TestBasePlugin:
 
 class TestTimingPlugin:
     @pytest.mark.asyncio
-    async def test_save_time(mock_cache):
+    async def test_save_time(self):
         do_save_time = TimingPlugin().save_time("get")
-        await do_save_time("self", mock_cache, took=1)
-        await do_save_time("self", mock_cache, took=2)
+        await do_save_time("self", self, took=1)
+        await do_save_time("self", self, took=2)
 
-        assert mock_cache.profiling["get_total"] == 2
-        assert mock_cache.profiling["get_max"] == 2
-        assert mock_cache.profiling["get_min"] == 1
-        assert mock_cache.profiling["get_avg"] == 1.5
+        assert self.profiling["get_total"] == 2
+        assert self.profiling["get_max"] == 2
+        assert self.profiling["get_min"] == 1
+        assert self.profiling["get_avg"] == 1.5
 
     @pytest.mark.asyncio
-    async def test_save_time_post_set(mock_cache):
-        await TimingPlugin().post_set(mock_cache, took=1)
-        await TimingPlugin().post_set(mock_cache, took=2)
+    async def test_save_time_post_set(self):
+        await TimingPlugin().post_set(self, took=1)
+        await TimingPlugin().post_set(self, took=2)
 
-        assert mock_cache.profiling["set_total"] == 2
-        assert mock_cache.profiling["set_max"] == 2
-        assert mock_cache.profiling["set_min"] == 1
-        assert mock_cache.profiling["set_avg"] == 1.5
+        assert self.profiling["set_total"] == 2
+        assert self.profiling["set_max"] == 2
+        assert self.profiling["set_min"] == 1
+        assert self.profiling["set_avg"] == 1.5
 
     @pytest.mark.asyncio
     async def test_interface_methods(self):
         for method in API.CMDS:
-            assert hasattr(TimingPlugin, "pre_{}".format(method.__name__))
-            assert hasattr(TimingPlugin, "post_{}".format(method.__name__))
+            assert hasattr(TimingPlugin, f"pre_{method.__name__}")
+            assert hasattr(TimingPlugin, f"post_{method.__name__}")
 
 
 class TestHitMissRatioPlugin:

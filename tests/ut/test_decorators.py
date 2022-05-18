@@ -27,8 +27,7 @@ class TestCached:
 
     @pytest.fixture
     def decorator_call(self, decorator):
-        d = decorator(stub)
-        yield d
+        yield decorator(stub)
 
     @pytest.fixture(autouse=True)
     def spy_stub(self, mocker):

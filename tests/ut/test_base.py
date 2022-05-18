@@ -225,10 +225,7 @@ class TestBaseCache:
         yield
         base_cache.namespace = None
 
-    @pytest.mark.parametrize(
-        "namespace, expected",
-        ([None, "test" + pytest.KEY], ["", pytest.KEY], ["my_ns", "my_ns" + pytest.KEY]),
-    )
+    @pytest.mark.parametrize("namespace, expected", ([None, f"test{pytest.KEY}"], ["", pytest.KEY], ["my_ns", f"my_ns{pytest.KEY}"]))
     def test_build_key(self, set_test_namespace, base_cache, namespace, expected):
         assert base_cache.build_key(pytest.KEY, namespace=namespace) == expected
 
